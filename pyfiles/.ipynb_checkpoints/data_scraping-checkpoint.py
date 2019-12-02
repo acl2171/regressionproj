@@ -44,7 +44,7 @@ def make_netflix_dataframe(df):
     df['genre'] = new[0]
     df['movie'] = new[1]
     df.drop(0, axis = 1, inplace = True)
-    df['movie'] = df['movie'].apply(lambda x: x[2:-1])
+    df['movie'] = df['movie'].apply(lambda x: x[3:-2])
     return df
 
 def get_data_from_wikipedia(url):
