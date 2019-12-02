@@ -1,7 +1,7 @@
 """
 DOCSTRING: 
 
-This module contains the functions used to collect data from Netflix (webscraping using BeautifulSoup) and the NYT Bestseller Lists (using the NYT API).
+This module contains the functions used to collect data from Netflix (webscraping using BeautifulSoup), Wikipedia (webscraping using BeautifulSoup) and the NYT Bestseller Lists (using the NYT API).
 
 """
 from bs4 import BeautifulSoup
@@ -46,3 +46,33 @@ def make_netflix_dataframe(df):
     df.drop(0, axis = 1, inplace = True)
     df['movie'] = df['movie'].apply(lambda x: x[2:-1])
     return df
+
+def get_data_from_wikipedia(url):
+    """This function uses pandas to scrape "Netflix original" movie titles and genres from a Wikipedia page
+    param_url: url to the Wikipedia page"""
+    df_collection = pd.read_html(url)
+
+    #create a collection of dataframes that have 'Title' column
+    collect = [] 
+    for df in df_collection:
+        if 'Title' in df.columns:
+            df = df['Title']
+            collect.append(df)
+    
+    # Change series to lists
+    big_series = []
+    for i in collect:
+        i = pd.Series.to_list(i)
+        big_series.append(i)
+    
+    # Make list of lists into one big list
+    final = []
+    for i in range(0, len(big_series)):    
+        for element in big_series[0]:
+            final.append(element)
+    
+    # Make list into dataframe
+    originals = pd.DataFrame(final)
+    originals.rename(columns = {0: 'title'}, inplace = True)
+    originals['netflix_orig'] = 1
+    return originals
