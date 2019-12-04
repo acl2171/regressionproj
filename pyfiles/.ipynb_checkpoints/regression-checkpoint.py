@@ -10,6 +10,7 @@ from sklearn.linear_model import Lasso, LogisticRegression
 from sklearn.feature_selection import SelectFromModel
 from sklearn.preprocessing import StandardScaler
 from sklearn.feature_selection import RFE
+import statsmodels.stats.outliers_influence as smd
 
 def scale_dataset(dataframe):
     scaler = StandardScaler()
@@ -18,48 +19,66 @@ def scale_dataset(dataframe):
     scaled_df = pd.DataFrame(then, columns = dataframe.columns)
     return scaled_df
 
-def recursive_feature_elimination(scaled_dataframe, dataframe, y):
+def cooksd(dataframe, columns_list):
+    """This function returns a dataframe of the variables and their cook's D distance."""
+    new_variables_dict = {}
+    for variable in columns_list:
+        X = np.array(dataframe[variable]).reshape(-1,1)
+        y = dataframe['AVGDV']
+        lr = LinearRegression(fit_intercept= False)
+        lr.fit(X,y)
+        mod = sm.OLS(y, X)
+        res = mod.fit()
+        cooksd = smd.OLSInfluence(res)
+        new_variables_dict.update({variable: cooksd.cooks_distance[0]})
+    df = pd.DataFrame(new_variables_dict)
+    return df
+
+def dropping_outliers(columns_list, df1, cooksddf):
+    """This function drops rows with outlier values according to Cook's distance above 3 * the mean."""
+    for column in columns_list:
+        for value in cooksddf[column]:
+            if value > (3 * df1[column].mean()):
+                df1 = df1[df1[column] != value]
+    return df1
+
+def recursive_feature_elimination(X, y):
     """This function runs a recursive feature elimination for feature selection based on the coefficients of a linear 
     regression model, and returns a dataframe of the resulting features."""
     
     # run rfe
     lr = LinearRegression()
     rfe = RFE(estimator=lr, n_features_to_select=7, step=1)
-    rfe.fit(scaled_dataframe, y)
+    rfe.fit(X, y)
     features = rfe.support_
     
     # Create dataframe from rfe results
     new =[]
-    for i in range(0, len(dataframe.columns)):
+    for i in range(0, len(X.columns)):
         if features[i] == True:
-            new.append(dataframe.columns[i])
-    recursive_df = dataframe.loc[:, new]
+            new.append(X.columns[i])
+    recursive_df = X.loc[:, new]
     return recursive_df
 
-def run_lasso(orig_dataframe, dataframe, y):
+def run_lasso(cleaned_df, X, y):
     """This function runs a lasso regression and outputs a dataframe with the resulting variables.
     param_orig_dataframe: The original dataframe before scaling
     dataframe: the scaled dataframe
     y: the dependent variable. """
-    clf = Lasso()
-    clf.fit(dataframe, y)
+    clf = Lasso(alpha = 0.10, normalize = True, positive = True)
+    clf.fit(X, y)
     coef = clf.coef_
-    cols = dataframe.columns
+    cols = X.columns
     feat1 = pd.DataFrame(zip(cols, coef))
-    feat1 = feat1[feat1[1] > 0]
+    feat1 = feat1[(feat1[1] > 0.0)]
     feat1_cols = list(feat1[0])
-    feat1_df = orig_dataframe.loc[:,feat1_cols]
+    feat1_df = X.loc[:,feat1_cols]
     return feat1_df
 
-def lasso_remove_multicollinearity(lasso_df):
-    """This function removes variables with high multicollinearity from the results of the lasso feature selection."""
-    lasso_df.drop(['AVGADW0001', 'AGE_5_17', 'ARR_0506', 'VACANT', 'ADWWEEKEND', 'ADWWEEKNIGHT'], axis = 1, inplace = True)
-    return lasso_df
-
-def forward_selection(orig_dataframe):
+def forward_selection(dataframe):
     """This function returns a dataframe with the variables selected via forward selection."""
-    dataframe = orig_dataframe.loc[:,['AVGMPDDIS','BLACK', 'PUBHOUSPT', 'NIGHT_BG', 'REC_BG', 'ASIAN', 'RETAILCOUNT', 'PSA', 'AGE_22_29']]
-    return dataframe
+    df = dataframe.loc[:,['POV', 'AA_POP','UNEMPL','FEMALE']]
+    return df
     
 
 def lasso_for_predict(dataframe, y):
