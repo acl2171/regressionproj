@@ -24,7 +24,7 @@ def recursive_feature_elimination(scaled_dataframe, dataframe, y):
     
     # run rfe
     lr = LinearRegression()
-    rfe = RFE(estimator=lr, n_features_to_select=6, step=1)
+    rfe = RFE(estimator=lr, n_features_to_select=7, step=1)
     rfe.fit(scaled_dataframe, y)
     features = rfe.support_
     
@@ -52,6 +52,11 @@ def lasso_remove_multicollinearity(lasso_df):
     lasso_df.drop(['AVGADW0001', 'AGE_5_17', 'ARR_0506', 'VACANT', 'ADWWEEKEND', 'ADWWEEKNIGHT'], axis = 1, inplace = True)
     return lasso_df
 
+def forward_selection(orig_dataframe):
+    """This function returns a dataframe with the variables selected via forward selection."""
+    dataframe = orig_dataframe.loc[:,['AVGMPDDIS','BLACK', 'PUBHOUSPT', 'NIGHT_BG', 'REC_BG', 'ASIAN', 'RETAILCOUNT', 'PSA', 'AGE_22_29']]
+    return dataframe
+    
 
 def lasso_for_predict(dataframe, y):
     clf = Lasso()
