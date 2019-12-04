@@ -37,6 +37,10 @@ def recursive_feature_elimination(scaled_dataframe, dataframe, y):
     return recursive_df
 
 def run_lasso(orig_dataframe, dataframe, y):
+    """This function runs a lasso regression and outputs a dataframe with the resulting variables.
+    param_orig_dataframe: The original dataframe before scaling
+    dataframe: the scaled dataframe
+    y: the dependent variable. """
     clf = Lasso()
     clf.fit(dataframe, y)
     coef = clf.coef_
@@ -64,6 +68,7 @@ def lasso_for_predict(dataframe, y):
     return clf
 
 def run_model(dataframe, y):
+    """This function runs an OLS model given a dataframe and a dependent variable, and returns as summary of the results."""
     X = dataframe
     mod = sm.OLS(y, X)
     res = mod.fit()

@@ -1,8 +1,9 @@
 """
 
-DOCSTRING: This module contains data pre-processing functions which clean the original dataset and remove irrelevant features. 
+DOCSTRING: This module contains data pre-processing functions which clean the original dataset and remove irrelevant features. It also contains functions to develop visualizations.
 
 """
+import seaborn as sns
 
 def clean_orig_dataset(dataframe):
     """This function removes irrelevant columns from the original dataset."""
@@ -10,10 +11,7 @@ def clean_orig_dataset(dataframe):
     return dataframe
 
 
-def recursive_feature_elimination(X, y):
-    """This function removes the features that were selected from backwards selection process."""
-    svc = SVC(kernel="linear", C=1)
-    rfe = RFE(estimator=svc, n_features_to_select=1, step=1)
-    rfe.fit(X, y)
-    ranking = rfe.ranking_
-    return ranking
+def scatter(X, y):
+    sns.set_context('talk')
+    return sns.scatterplot(X, y);
+    
