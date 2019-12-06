@@ -1,4 +1,4 @@
-# Title: 
+# Title: Domestic Violence in Washington D.C.
  - 
 
 ## Contributors:
@@ -6,8 +6,7 @@
  - Allison Lee (@acl2171)
  
 ## Goals:
- - Of New York Times Bestseller fiction and nonfiction books, which ones are picked up by streaming services as movies and TV shows? 
- - For this analysis, we used data from NYT Bestseller Lists (2008 - 2019), Netflix, and HBO to classify whether or not bestselling books would be picked up by streaming services. 
+ - To understand the factors that are associated with incidents of domestic violence in Washington, D.C. 
  
  
  ## Links to Files:
@@ -18,4 +17,4 @@
        - Technical Notebook
 
   - Python Files
-       - Web scraping
+       - 
