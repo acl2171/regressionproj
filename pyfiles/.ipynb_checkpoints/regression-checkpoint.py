@@ -12,11 +12,10 @@ from sklearn.preprocessing import StandardScaler
 from sklearn.feature_selection import RFE
 import statsmodels.stats.outliers_influence as smd
 
-def scale_dataset(dataframe):
+def scale_dataset(x_dataframe):
     scaler = StandardScaler()
-    scaler = scaler.fit(dataframe)
-    then = scaler.transform(dataframe)
-    scaled_df = pd.DataFrame(then, columns = dataframe.columns)
+    scaler = scaler.fit_transform(x_dataframe)
+    scaled_df = pd.DataFrame(scaler, columns = x_dataframe.columns)
     return scaled_df
 
 def cooksd(dataframe, columns_list):
@@ -24,7 +23,7 @@ def cooksd(dataframe, columns_list):
     new_variables_dict = {}
     for variable in columns_list:
         X = np.array(dataframe[variable]).reshape(-1,1)
-        y = dataframe['AVGDV']
+        y = dataframe.AVGDV
         lr = LinearRegression(fit_intercept= False)
         lr.fit(X,y)
         mod = sm.OLS(y, X)
@@ -42,13 +41,13 @@ def dropping_outliers(columns_list, df1, cooksddf):
                 df1 = df1[df1[column] != value]
     return df1
 
-def recursive_feature_elimination(X, y):
+def recursive_feature_elimination(X, y, number):
     """This function runs a recursive feature elimination for feature selection based on the coefficients of a linear 
     regression model, and returns a dataframe of the resulting features."""
     
     # run rfe
-    lr = LinearRegression()
-    rfe = RFE(estimator=lr, n_features_to_select=7, step=1)
+    lr = LinearRegression(fit_intercept=True)
+    rfe = RFE(estimator=lr, n_features_to_select=number, step=1)
     rfe.fit(X, y)
     features = rfe.support_
     
@@ -75,12 +74,6 @@ def run_lasso(cleaned_df, X, y):
     feat1_df = X.loc[:,feat1_cols]
     return feat1_df
 
-def forward_selection(dataframe):
-    """This function returns a dataframe with the variables selected via forward selection."""
-    df = dataframe.loc[:,['POV', 'AA_POP','UNEMPL','FEMALE']]
-    return df
-    
-
 def lasso_for_predict(dataframe, y):
     clf = Lasso()
     clf.fit(dataframe, y)
@@ -89,6 +82,7 @@ def lasso_for_predict(dataframe, y):
 def run_model(dataframe, y):
     """This function runs an OLS model given a dataframe and a dependent variable, and returns as summary of the results."""
     X = dataframe
+    X = sm.add_constant(X)
     mod = sm.OLS(y, X)
     res = mod.fit()
-    print(res.summary())
+    return res
