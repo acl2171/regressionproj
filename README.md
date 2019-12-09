@@ -35,3 +35,4 @@ The purpose of this project is to understand the factors that are associated wit
   
 ## Sources
 * Roman, Caterina Gouvis. Alcohol Availability, Type of Alcohol Establishment, Distribution Policies, and Their Relationship to Crime and Disorder in the District of Columbia, 2000-2006. Ann Arbor, MI: Inter-university Consortium for Political and Social Research [distributor], 2009-07-31. https://doi.org/10.3886/ICPSR25763.v1
+
